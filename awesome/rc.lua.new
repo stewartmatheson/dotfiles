@@ -1,0 +1,58 @@
+local awful = require("awful")
+local wibox = require("wibox")
+local beautiful = require("beautiful")
+local gears = require("gears")
+
+local theme = {}
+theme.bg_color = "#222222"
+theme.font = "ubuntu 12"
+beautiful.init(theme)
+
+mytextclock = wibox.widget.textclock()
+volume_widget = wibox.widget({ 
+	type = "textbox", 
+	name = "tb_volume", 
+	align = "right",
+	widget = wibox.widget.textbox
+})
+
+function update_volume(widget)
+	local fd = io.popen("amixer sget Master")
+	local status = fd:read("*all")
+	fd:close()
+
+	local volume = tonumber(string.match(status, "(%d?%d?%d)%%"))
+	--volume = string.format("% 3d", volume)
+	widget.text = volume
+end
+
+gears.timer {
+	timeout = 1,
+	call_now = true,
+	autostart = true,
+	callback = function ()
+		update_volume(volume_widget)
+	end
+}
+
+awful.screen.connect_for_each_screen(function(s) 
+
+    s.mywibox = awful.wibar({ 
+		position = "top", 
+		screen = s,
+		bg = "#222"
+	})
+
+    s.mywibox:setup {
+        layout = wibox.layout.align.horizontal,
+        { --Left widgets 
+        	layout = wibox.layout.align.horizontal,
+		},
+        { -- Right widgets
+        	layout = wibox.layout.align.horizontal,
+            mytextclock,
+			volume_widget
+        },
+    }
+end)
+

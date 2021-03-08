@@ -1,3 +1,5 @@
-*
+/*
 !.gitignore
-!rc.lua.new
+!/awesome
+/awesome/*
+!/awesome/rc.lua.new
