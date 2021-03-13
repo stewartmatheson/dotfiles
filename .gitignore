@@ -8,3 +8,7 @@
 !/nvim
 /nvim/*
 !/nvim/init.vim
+
+!/alacritty
+/alacritty/*
+!/alacritty/alacritty.yml
