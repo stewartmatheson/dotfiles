@@ -1,7 +1,10 @@
 /*
 !.gitignore
+
 !/awesome
 /awesome/*
 !/awesome/rc.lua.new
+
+!/nvim
 /nvim/*
 !/nvim/init.vim
