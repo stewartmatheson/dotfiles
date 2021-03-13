@@ -3,3 +3,5 @@
 !/awesome
 /awesome/*
 !/awesome/rc.lua.new
+/nvim/*
+!/nvim/init.vim
