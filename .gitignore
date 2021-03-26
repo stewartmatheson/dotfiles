@@ -3,7 +3,8 @@
 
 !/awesome
 /awesome/*
-!/awesome/rc.lua.new
+!/awesome/rc.lua.test
+!/awesome/volume.lua
 
 !/nvim
 /nvim/*

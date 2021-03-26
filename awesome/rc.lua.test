@@ -1,0 +1,51 @@
+local wibox = require("wibox")
+local beautiful = require("beautiful")
+local volume = require("./volume")
+local awful = require("awful")
+local gears = require("gears")
+
+local terminal = "alacritty"
+local modkey = "Mod4"
+
+local theme = {
+    bg_color = "#222222",
+    font = "ubuntu 14"
+}
+
+beautiful.init(theme)
+
+local mytextclock = wibox.widget.textclock()
+
+volume.init()
+local volume_keys = volume.bind()
+
+local keys = gears.table.join(
+    volume_keys,
+    awful.key({ modkey, }, "Return", function()
+        awful.spawn(terminal)
+    end)
+)
+
+root.keys(keys)
+
+awful.screen.connect_for_each_screen(function(s) 
+
+    s.mywibox = awful.wibar({ 
+		position = "top", 
+		screen = s,
+		bg = "#222"
+	})
+
+    s.mywibox:setup {
+        layout = wibox.layout.align.horizontal,
+        { --Left widgets 
+        	layout = wibox.layout.align.horizontal,
+		},
+        { -- Right widgets
+        	layout = wibox.layout.align.horizontal,
+            mytextclock,
+            volume.widget
+        },
+    }
+end)
+
