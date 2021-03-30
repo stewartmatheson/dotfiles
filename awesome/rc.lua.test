@@ -8,16 +8,19 @@ local dpi   = require("beautiful.xresources").apply_dpi
 local terminal = "alacritty"
 local modkey = "Mod4"
 
+local theme_dir = os.getenv("HOME") .. "/.config/awesome/themes/stew-orig"
 local theme = {
-    bg_color = "#222222",
     font = "ubuntu 14",
-    dir = os.getenv("HOME") .. "/.config/awesome/themes/stew-orig"
+    wallpaper = theme_dir .. "/wallpaper.jpg",
+    bg_focus = "#00000000",
+    widget_vol = theme_dir .. "/icons/vol.png",
+    highlight = "#33ccff",
+    tilebar_background = "#00000033"
 }
 
-theme.widget_vol = theme.dir .. "/icons/vol.png"
-theme.bg_focus = "#1E2320"
 
 local function wrap_widget_in_titlebar_container(widget, icon_image_path) 
+    --[[
     local icon = wibox.widget.imagebox(icon_image_path)
     return wibox.container.background(
         wibox.container.margin(
@@ -31,9 +34,25 @@ local function wrap_widget_in_titlebar_container(widget, icon_image_path)
         ),
         theme.bg_focus
     )
+    --]]
+
+    return {
+        {
+            {
+                widget,
+                wibox.widget.imagebox(icon_image_path),
+                layout = wibox.layout.align.horizontal
+            },
+            bottom = 2,
+            color = theme.highlight,
+            widget = wibox.container.margin
+        },
+        left = 20, 
+        right = 20,
+        layout = wibox.container.margin
+    }
 end
 
-theme.widget_vol = theme.dir .. "/icons/vol.png"
 
 beautiful.init(theme)
 
@@ -49,12 +68,30 @@ local keys = gears.table.join(
 
 root.keys(keys)
 
+
+local function set_wallpaper(s)
+    -- Wallpaper
+    if beautiful.wallpaper then
+        local wallpaper = beautiful.wallpaper
+        -- If wallpaper is a function, call it with the screen
+        if type(wallpaper) == "function" then
+            wallpaper = wallpaper(s)
+        end
+        print(wallpaper)
+        gears.wallpaper.maximized(wallpaper, s, true)
+    end
+end
+
+screen.connect_signal("property::geometry", set_wallpaper)
+
 awful.screen.connect_for_each_screen(function(s) 
+
+    set_wallpaper(s)
 
     s.mywibox = awful.wibar({ 
 		position = "top", 
 		screen = s,
-		bg = "#222"
+        bg = "#00000066",
 	})
 
     s.mywibox:setup {
@@ -64,7 +101,7 @@ awful.screen.connect_for_each_screen(function(s)
 		},
         { -- Right widgets
         	layout = wibox.layout.align.horizontal,
-            mytextclock,
+            wrap_widget_in_titlebar_container(mytextclock),
             wrap_widget_in_titlebar_container(volume_module.widget, theme.widget_vol)
         },
     }
