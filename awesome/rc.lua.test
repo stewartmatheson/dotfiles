@@ -3,24 +3,45 @@ local beautiful = require("beautiful")
 local volume = require("./volume")
 local awful = require("awful")
 local gears = require("gears")
+local dpi   = require("beautiful.xresources").apply_dpi
 
 local terminal = "alacritty"
 local modkey = "Mod4"
 
 local theme = {
     bg_color = "#222222",
-    font = "ubuntu 14"
+    font = "ubuntu 14",
+    dir = os.getenv("HOME") .. "/.config/awesome/themes/stew-orig"
 }
+
+theme.widget_vol = theme.dir .. "/icons/vol.png"
+theme.bg_focus = "#1E2320"
+
+local function wrap_widget_in_titlebar_container(widget, icon_image_path) 
+    local icon = wibox.widget.imagebox(icon_image_path)
+    return wibox.container.background(
+        wibox.container.margin(
+            wibox.widget {
+                icon,
+                widget,
+                layout = wibox.layout.align.horizontal
+            },
+            dpi(0),
+            dpi(0)
+        ),
+        theme.bg_focus
+    )
+end
+
+theme.widget_vol = theme.dir .. "/icons/vol.png"
 
 beautiful.init(theme)
 
 local mytextclock = wibox.widget.textclock()
-
-volume.init()
-local volume_keys = volume.bind()
+local volume_module = volume(theme)
 
 local keys = gears.table.join(
-    volume_keys,
+    volume_module.keys,
     awful.key({ modkey, }, "Return", function()
         awful.spawn(terminal)
     end)
@@ -44,8 +65,10 @@ awful.screen.connect_for_each_screen(function(s)
         { -- Right widgets
         	layout = wibox.layout.align.horizontal,
             mytextclock,
-            volume.widget
+            wrap_widget_in_titlebar_container(volume_module.widget, theme.widget_vol)
         },
     }
 end)
 
+
+awful.tag({"Home"})

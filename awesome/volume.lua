@@ -5,56 +5,34 @@ local awful = require("awful")
 local volume_widget = wibox.widget({
     type = "textbox",
     name = "tb_volume",
-    align = "right",
 	widget = wibox.widget.textbox
 })
 
-local function get_volume()
-	local fd = io.popen("amixer sget Master")
-	local status = fd:read("*all")
-	fd:close()
+local GET_VOLUME_COMMAND = "amixer sget Master"
 
-	local volume_value = tonumber(string.match(status, "(%d?%d?%d)%%")) / 100
-	status = string.match(status, "%[(o[^%]]*)%]")
-	local interpol_colour = "blue"--string.format("%.2x%.2x%.2x", ir, ig, ib)
-
-	if string.find(status, "on", 1, true) then
-		return "<span background='#"..interpol_colour.."'>"..volume_value.."</span>"
-	else
-		return "<span color='red' background='#"..interpol_colour.."'>"..volume_value.."</span>"
-	end
+local function update_volume(widget, stdout)
+    if (stdout ~= nil) then
+        local current_volume = tonumber(string.match(stdout, "(%d?%d?%d)%%"))
+        widget.text = current_volume
+    end
 end
 
-local function update_volume(widget)
-	widget.text = get_volume()
-end
+local function factory(theme)
+    awful.widget.watch(GET_VOLUME_COMMAND, 1,  update_volume, volume_widget)
+    volume_widget.font = theme.font
 
-local function init ()
-    update_volume(volume_widget)
-
-    gears.timer {
-        timeout = 1,
-        call_now = true,
-        autostart = true,
-        callback = function ()
-            update_volume(volume_widget)
-        end
-    }
-end
-
-local function bind()
-    return gears.table.join(
-        awful.key({}, "#122", function ()
+    local keys = gears.table.join(
+        awful.key({}, "#123", function ()
             awful.spawn("amixer set Master 5%+")
             update_volume(volume_widget)
         end),
 
-        awful.key({}, "#123", function ()
+        awful.key({}, "#122", function ()
             awful.spawn("amixer set Master 5%-")
             update_volume(volume_widget)
         end)
     )
-
+    return { widget = volume_widget, keys = keys }
 end
 
-return { widget = volume_widget, init = init, bind = bind }
+return factory
