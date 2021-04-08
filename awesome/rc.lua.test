@@ -15,27 +15,14 @@ local theme = {
     bg_focus = "#00000000",
     widget_vol = theme_dir .. "/icons/vol.png",
     highlight = "#33ccff",
-    tilebar_background = "#00000033"
+    tilebar_background = "#00000033",
+    useless_gap = dpi(20)
 }
+
+awful.layout.layouts = { awful.layout.suit.tile }
 
 
 local function wrap_widget_in_titlebar_container(widget, icon_image_path) 
-    --[[
-    local icon = wibox.widget.imagebox(icon_image_path)
-    return wibox.container.background(
-        wibox.container.margin(
-            wibox.widget {
-                icon,
-                widget,
-                layout = wibox.layout.align.horizontal
-            },
-            dpi(0),
-            dpi(0)
-        ),
-        theme.bg_focus
-    )
-    --]]
-
     return {
         {
             {
@@ -47,8 +34,8 @@ local function wrap_widget_in_titlebar_container(widget, icon_image_path)
             color = theme.highlight,
             widget = wibox.container.margin
         },
-        left = 20, 
-        right = 20,
+        left = 0, 
+        right = 10,
         layout = wibox.container.margin
     }
 end
@@ -68,7 +55,6 @@ local keys = gears.table.join(
 
 root.keys(keys)
 
-
 local function set_wallpaper(s)
     -- Wallpaper
     if beautiful.wallpaper then
@@ -87,6 +73,7 @@ screen.connect_signal("property::geometry", set_wallpaper)
 awful.screen.connect_for_each_screen(function(s) 
 
     set_wallpaper(s)
+    awful.layout.inc(0, s)
 
     s.mywibox = awful.wibar({ 
 		position = "top", 
@@ -94,15 +81,22 @@ awful.screen.connect_for_each_screen(function(s)
         bg = "#00000066",
 	})
 
+    s.mytasklist = awful.widget.tasklist {
+        screen  = s,
+        filter  = awful.widget.tasklist.filter.currenttags,
+        buttons = tasklist_buttons
+    }
+
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
         { --Left widgets 
         	layout = wibox.layout.align.horizontal,
 		},
+        s.mytasklist,
         { -- Right widgets
         	layout = wibox.layout.align.horizontal,
-            wrap_widget_in_titlebar_container(mytextclock),
-            wrap_widget_in_titlebar_container(volume_module.widget, theme.widget_vol)
+            wrap_widget_in_titlebar_container(volume_module.widget, theme.widget_vol),
+            wrap_widget_in_titlebar_container(mytextclock)
         },
     }
 end)

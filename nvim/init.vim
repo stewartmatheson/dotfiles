@@ -160,3 +160,5 @@ nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
 nnoremap <silent> <C-p> :FZF<CR>
 nnoremap <silent> <F8> :make -C build<CR>
 set exrc
+
+set ttimeoutlen=100
