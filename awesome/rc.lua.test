@@ -6,8 +6,6 @@ local gears = require("gears")
 local dpi   = require("beautiful.xresources").apply_dpi
 local menubar = require("menubar")
 
-
-
 local terminal = "alacritty"
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 local modkey = "Mod4"
@@ -201,6 +199,12 @@ client.connect_signal("request::titlebars", function(c)
         end)
     )
 
+    local control_button = {
+        shape = gears.shape.circle,
+        bg = "#ffffff",
+        widget = wibox.container.background
+    }
+
     local left_titlebar = awful.titlebar(
         c, 
         { 
@@ -211,13 +215,20 @@ client.connect_signal("request::titlebars", function(c)
     )
 
     left_titlebar : setup {
+        --[[
         { -- Left
             awful.titlebar.widget.iconwidget(c),
             buttons = buttons,
             layout  = wibox.layout.fixed.vertical
         },
-        layout = wibox.layout.align.horizontal
+        ]]--
+        control_button,
+        control_button,
+        control_button,
+        --layout = wibox.layout.align.vertical
+        layout = wibox.layout.fixed.vertical
     }
+
 
 end)
 
@@ -226,5 +237,5 @@ client.connect_signal("mouse::enter", function(c)
     c:emit_signal("request::activate", "mouse_enter", {raise = false})
 end)
 
-client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
-client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+-- For debugging
+awful.spawn(terminal)
