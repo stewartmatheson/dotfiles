@@ -14,6 +14,7 @@ Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'itchyny/lightline.vim'
 Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'vim-scripts/doxygentoolkit.vim'
 
 call plug#end()
 

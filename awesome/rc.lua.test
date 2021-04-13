@@ -80,12 +80,9 @@ end
 screen.connect_signal("property::geometry", set_wallpaper)
 
 awful.screen.connect_for_each_screen(function(s) 
-
     set_wallpaper(s)
     awful.tag({ "Home", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
-
-    -- awful.layout.inc(0, s)
-
+    
     s.mywibox = awful.wibar({ 
 		position = "top", 
 		screen = s,
@@ -105,9 +102,9 @@ awful.screen.connect_for_each_screen(function(s)
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
         { --Left widgets 
-        	layout = wibox.layout.align.horizontal,
+        	layout = wibox.layout.align.horizontal
 		},
-        s.mytasklist,
+       s.mytasklist,
         { -- Right widgets
         	layout = wibox.layout.align.horizontal,
             wrap_widget_in_titlebar_container(volume_module.widget, theme.widget_vol),
@@ -199,36 +196,64 @@ client.connect_signal("request::titlebars", function(c)
         end)
     )
 
-    local control_button = {
-        shape = gears.shape.circle,
-        bg = "#ffffff",
-        widget = wibox.container.background
+    local round_button = wibox.widget {
+        fit    = function(self, context, width, height)
+            return width, width -- A square taking the full height
+        end,
+        draw   = function(self, context, cr, width, height)
+            cr:set_source_rgb(0.2, 0.8, 1) -- Red
+            cr:arc(height/2, height/2, height/2, 0, math.pi*2)
+            cr:fill()
+        end,
+        layout = wibox.widget.base.make_widget,
     }
+
+    local contained_round_button = {
+        round_button,
+        left = dpi(18),
+        right = dpi(18),
+        top = dpi(18),
+        bottom = dpi(0),
+        widget = wibox.container.margin
+    }
+
+    round_button:buttons(
+        gears.table.join(
+            awful.button({ }, 1, function()
+                awful.mouse.client.close(c)
+            end)
+        )
+    )
 
     local left_titlebar = awful.titlebar(
         c, 
         { 
+            size = 40,
             position = "left",
-            bg_normal = "#000000",
-            bg_focus = "#000000"
+            bg_normal = "#222222",
+            bg_focus = "#222222"
         }
     )
 
     left_titlebar : setup {
-        --[[
         { -- Left
-            awful.titlebar.widget.iconwidget(c),
-            buttons = buttons,
-            layout  = wibox.layout.fixed.vertical
+            --awful.titlebar.widget.iconwidget(c),
+            contained_round_button,
+            contained_round_button,
+            contained_round_button,
+            layout  = wibox.layout.fixed.vertical(),
         },
-        ]]--
-        control_button,
-        control_button,
-        control_button,
-        --layout = wibox.layout.align.vertical
-        layout = wibox.layout.fixed.vertical
-    }
+        { -- Middle
+            layout  = wibox.layout.flex.vertical(),
+            buttons = buttons
+        },
+        { -- Right
+            layout = wibox.layout.fixed.vertical(),
+            buttons = buttons
+        },
+        layout = wibox.layout.align.vertical
 
+    }
 
 end)
 
